@@ -1,0 +1,62 @@
+#include "Ai.h"
+#include <stack>
+#include <iostream>
+
+void Ai::DFS(Node* start, Node* goal)
+{
+	dfsTracedPath.clear();
+
+	for (auto& row : grid)
+	{
+		for (auto& node : row)
+		{
+			node.Reset();
+		}
+	}
+
+	stack<Node*> openSet;
+
+	openSet.push(start);
+	start->visited = true;
+
+	while (!openSet.empty())
+	{
+		Node* current = openSet.top();
+		openSet.pop();
+
+		if (current->atSameSpot(*goal))
+		{
+			cout << "Goal Reached" << endl;
+
+			while (current != start)
+			{
+				dfsTracedPath.push_back(current);
+				current = current->parent;
+			}
+
+			return;
+		}
+
+		for (Node* neighbor : GetNeighbors(current))
+		{
+			if (neighbor->blocked || neighbor->visited || neighbor->weight > threshold)
+			{
+				continue;
+			}
+
+			neighbor->parent = current;
+			neighbor->visited = true;
+
+			neighbor->step = current->step + 1;
+
+			openSet.push(neighbor);
+		}
+	}
+
+	cout << "No Path Found in DFS" << endl;
+	threshold += 0.1;
+	if (threshold < 1)
+	{
+		DFS(start, goal);
+	}
+}
