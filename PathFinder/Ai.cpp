@@ -44,7 +44,7 @@ void Ai::Start()
     }
 
     // take some (e.g., 5, 10, or 20) from sqaures randomly and put in blockd ones
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 200; i++)
     {
         int randRow = GetRandomValue(0, (int)(grid.size()) - 1);
         int randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
@@ -53,9 +53,12 @@ void Ai::Start()
 
 
     // choose a random home and dest from squares
-    int randRow = GetRandomValue(0, (int)(grid.size()) - 1);
-    int randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
+    int randRow, randCol;
+
+    randRow = GetRandomValue(0, (int)(grid.size()) - 1);
+    randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
     pointA = grid[randRow][randCol];
+    grid[randRow][randCol].blocked = false;
     pointA.costText = "A";
     pointA.fillColor = GREEN;
     pointA.blocked = true; // this just so the color renders
@@ -63,6 +66,7 @@ void Ai::Start()
     randRow = GetRandomValue(0, (int)(grid.size()) - 1);
     randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
     pointB = grid[randRow][randCol];
+    grid[randRow][randCol].blocked = false;
     pointB.costText = "B";
     pointB.fillColor = BLUE;
     pointB.blocked = true; // this just so the color renders
@@ -76,7 +80,7 @@ void Ai::Start()
     queue<Node*> openSet;
     openSet.push(&hotspot);
     Node* current = &hotspot;
-    while (current->weight > 0)
+    while (current->weight > 0.1f)
     {
         current = openSet.front();
         openSet.pop();
@@ -95,29 +99,32 @@ void Ai::Start()
         }
     }
 
-    threshold = 0;
-    BFS(&pointA, &pointB);
-    threshold = 0;
-    DFS(&pointA, &pointB);
+    searchPath.clear();
+
+    //threshold = 0;
+    //BFS(&pointA, &pointB);
+    
+    //threshold = 0;
+    //DFS(&pointA, &pointB);
+    
+    //Djikstra(&pointA, &pointB);
+
+    AStar(&pointA, &pointB);
+
+    currentID = 0;
 }
 
 void Ai::UpdateAndDraw()
 {
     for (int i = 0; i < (int)(grid.size()); i++)
-        for (int j = 0; j < (int)(grid[i].size()); j++)
-            grid[i][j].Draw();
-
-    for (auto& row : grid)
     {
-        for (auto& node : row)
+        for (int j = 0; j < (int)(grid[i].size()); j++)
         {
-            if (node.weight != 0)
-            {
-                unsigned char a = node.weight * 100;
-                node.DrawPath(Color{ 200, 0, 200, a });
-            }
+            grid[i][j].Draw();
         }
     }
+
+    ShadeHotspot(grid);
 
     for (Node* node : bfsTracedPath)
     {
@@ -129,10 +136,31 @@ void Ai::UpdateAndDraw()
         node->DrawPath(dfsColor);
     }
 
+    for (Node* node : djikstraTracedPath)
+    {
+        node->DrawPath(djikstraColor);
+    }
+
+    for (Node* node : aStarTracedPath)
+    {
+        node->DrawPath(aStarColor);
+    }
+
+    for (int i = 0; i < currentID; i++) 
+    {
+        searchPath[i]->DrawPath(Color{ 0, 0, 0, 100 });
+    }
+    if (currentID < searchPath.size() - 1)
+    {
+        currentID++;
+    }
+    sleep_for(milliseconds(10));
+
         // Check if the "R" key is pressed
-    if (IsKeyPressed(KEY_R)) { Start(); } // RESTART
-
-
+    if (IsKeyPressed(KEY_R)) 
+    { 
+        Start();  // RESTART
+    }
 
     // draw home and dest. Reset 
     pointA.step = -1; pointA.Draw();
@@ -174,7 +202,20 @@ vector<Node*> Ai::GetNeighbors(Node* node)
     return neighbors;
 }
 
-
+void Ai::ShadeHotspot(vector<vector<Node>> grid)
+{
+    for (auto& row : grid)
+    {
+        for (auto& node : row)
+        {
+            if (node.weight != 0)
+            {
+                unsigned char a = node.weight * 100;
+                node.DrawPath(Color{ 200, 0, 200, a });
+            }
+        }
+    }
+}
 
 
 

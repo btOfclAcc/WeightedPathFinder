@@ -4,6 +4,11 @@
 #include <float.h> // FOR FLT MAX
 #include <stdio.h> // FOR FLT MAX
 #include "Node.h"
+#include <thread>
+#include <chrono>
+
+using namespace std::this_thread;
+using namespace std::chrono;
 
 #ifndef AIPATH_H
 #define AIPATH_H
@@ -26,6 +31,8 @@ public:
     void Start();
     void UpdateAndDraw();
 
+    void ShadeHotspot(vector<vector<Node>> grid);
+
     vector<Node*> GetNeighbors(Node* node);
 
     float threshold;
@@ -40,6 +47,18 @@ public:
     vector<Node*> dfsTracedPath;
     Color dfsColor = Color{ 0, 200, 0, 100 };
 
+
+    void Djikstra(Node* start, Node* goal);
+    vector<Node*> djikstraTracedPath;
+    Color djikstraColor = Color{ 0, 0, 200, 100 };
+
+
+    void AStar(Node* start, Node* goal);
+    vector<Node*> aStarTracedPath;
+    Color aStarColor = Color{ 200, 200, 0, 100 };
+
+    vector<Node*> searchPath;
+    int currentID;
 };
 
 #endif

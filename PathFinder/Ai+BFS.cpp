@@ -24,6 +24,7 @@ void Ai::BFS(Node* start, Node* goal)
 	{
 		Node* current = openSet.front();
 		openSet.pop();
+		searchPath.push_back(current);
 
 		if (current->atSameSpot(*goal))
 		{
@@ -60,6 +61,7 @@ void Ai::BFS(Node* start, Node* goal)
 	threshold += 0.1;
 	if (threshold < 1)
 	{
+		searchPath.clear();
 		BFS(start, goal);
 	}
 }

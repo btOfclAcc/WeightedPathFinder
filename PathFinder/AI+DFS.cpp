@@ -23,6 +23,7 @@ void Ai::DFS(Node* start, Node* goal)
 	{
 		Node* current = openSet.top();
 		openSet.pop();
+		searchPath.push_back(current);
 
 		if (current->atSameSpot(*goal))
 		{
@@ -57,6 +58,7 @@ void Ai::DFS(Node* start, Node* goal)
 	threshold += 0.1;
 	if (threshold < 1)
 	{
+		searchPath.clear();
 		DFS(start, goal);
 	}
 }
