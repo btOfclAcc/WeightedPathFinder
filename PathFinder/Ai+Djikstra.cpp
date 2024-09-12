@@ -46,7 +46,7 @@ void Ai::Djikstra(Node* start, Node* goal)
 
 		for (auto neighbor : GetNeighbors(current))
 		{
-			if (neighbor->blocked || neighbor->visited)
+			if (neighbor->currentState == NodeState::Blocked || neighbor->currentState == NodeState::Visited)
 			{
 				continue;
 			}
@@ -55,7 +55,7 @@ void Ai::Djikstra(Node* start, Node* goal)
 			{
 				neighbor->gCost = tentativeGCost;
 				neighbor->parent = current;
-				neighbor->visited = true;
+				neighbor->currentState == NodeState::Visited;
 				neighbor->step = current->step + 1;
 				openSet.push(neighbor);
 			}

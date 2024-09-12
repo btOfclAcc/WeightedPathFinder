@@ -25,7 +25,7 @@ public:
 #define NODE_SIZE 25
 
     vector<vector<Node>> grid;
-    Node pointA, pointB, hotspot;
+    Node start, goal, hotspot;
 
     void Main();
     void Start();
@@ -59,6 +59,9 @@ public:
 
     vector<Node*> searchPath;
     int currentID;
+
+    Node* GetRandomNode();
+    Node* GetRandomNode(Node* node);
 };
 
 #endif

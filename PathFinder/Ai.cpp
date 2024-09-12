@@ -26,6 +26,39 @@ void Ai::Main()
     CloseWindow();
 }
 
+Node* Ai::GetRandomNode()
+{
+    int randRow = GetRandomValue(0, (int)(grid.size()) - 1);
+    int randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
+
+    while (grid[randRow][randCol].currentState == NodeState::Blocked || 
+           grid[randRow][randCol].currentState == NodeState::Start || 
+           grid[randRow][randCol].currentState == NodeState::Goal)
+    {
+		randRow = GetRandomValue(0, (int)(grid.size()) - 1);
+		randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
+	}
+
+	return &grid[randRow][randCol];
+}
+
+Node* Ai::GetRandomNode(Node* node)
+{
+    int randRow = GetRandomValue(0, (int)(grid.size()) - 1);
+    int randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
+
+    while (grid[randRow][randCol].currentState == NodeState::Blocked ||
+        grid[randRow][randCol].currentState == NodeState::Start ||
+        grid[randRow][randCol].currentState == NodeState::Goal)
+    {
+        randRow = GetRandomValue(0, (int)(grid.size()) - 1);
+        randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
+    }
+
+    node = &grid[randRow][randCol];
+    return &grid[randRow][randCol];
+}
+
 void Ai::Start()
 {
     // re-create the nodes
@@ -37,45 +70,21 @@ void Ai::Start()
         for (int col = 0; col < COLS; col++)
         {
             float x = NODE_SIZE * col;
-            Node node = { row, col, Vector2{x, y}, DARKGRAY, LIGHTGRAY }; // fill, stroke
+            Node node = { row, col, Vector2{x, y} }; // fill, stroke
             rowNodes.push_back(node);
         }
         grid.push_back(rowNodes);
     }
 
-    // take some (e.g., 5, 10, or 20) from sqaures randomly and put in blockd ones
     for (int i = 0; i < 200; i++)
     {
-        int randRow = GetRandomValue(0, (int)(grid.size()) - 1);
-        int randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
-        grid[randRow][randCol].blocked = true;
+        GetRandomNode()->SetState(NodeState::Blocked);
     }
 
+    GetRandomNode(&start)->SetState(NodeState::Start);
+    GetRandomNode(&goal)->SetState(NodeState::Goal);
 
-    // choose a random home and dest from squares
-    int randRow, randCol;
-
-    randRow = GetRandomValue(0, (int)(grid.size()) - 1);
-    randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
-    pointA = grid[randRow][randCol];
-    grid[randRow][randCol].blocked = false;
-    pointA.costText = "A";
-    pointA.fillColor = GREEN;
-    pointA.blocked = true; // this just so the color renders
-
-    randRow = GetRandomValue(0, (int)(grid.size()) - 1);
-    randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
-    pointB = grid[randRow][randCol];
-    grid[randRow][randCol].blocked = false;
-    pointB.costText = "B";
-    pointB.fillColor = BLUE;
-    pointB.blocked = true; // this just so the color renders
-
-
-    randRow = GetRandomValue(0, (int)(grid.size()) - 1);
-    randCol = GetRandomValue(0, (int)(grid[randRow].size()) - 1);
-    hotspot = grid[randRow][randCol];
-    hotspot.weight = 1;
+    GetRandomNode(&hotspot)->weight = 1;
 
     queue<Node*> openSet;
     openSet.push(&hotspot);
@@ -102,14 +111,14 @@ void Ai::Start()
     searchPath.clear();
 
     //threshold = 0;
-    //BFS(&pointA, &pointB);
+    //BFS(&start, &goal);
     
     //threshold = 0;
-    //DFS(&pointA, &pointB);
+    //DFS(&start, &goal);
     
-    //Djikstra(&pointA, &pointB);
+    //Djikstra(&start, &goal);
 
-    AStar(&pointA, &pointB);
+    AStar(&start, &goal);
 
     currentID = 0;
 }
@@ -163,8 +172,8 @@ void Ai::UpdateAndDraw()
     }
 
     // draw home and dest. Reset 
-    pointA.step = -1; pointA.Draw();
-    pointB.step = -1; pointB.Draw();
+    start.step = -1; start.Draw();
+    goal.step = -1; goal.Draw();
 }
 
 vector<Node*> Ai::GetNeighbors(Node* node)

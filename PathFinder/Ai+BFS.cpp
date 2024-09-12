@@ -43,12 +43,12 @@ void Ai::BFS(Node* start, Node* goal)
 
 		for (Node* neighbor : GetNeighbors(current))
 		{
-			if (neighbor->blocked || neighbor->visited || neighbor->weight > threshold)
+			if (neighbor->currentState == NodeState::Blocked || neighbor->currentState == NodeState::Visited || neighbor->weight > threshold)
 			{
 				continue;
 			}
 
-			neighbor->visited = true;
+			neighbor->currentState == NodeState::Visited;
 			neighbor->parent = current;
 
 			neighbor->step = current->step + 1;
